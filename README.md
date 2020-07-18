@@ -1,2 +1,3 @@
 # Hello-world
-first use
+first time use github
+I'm studying Node.js
