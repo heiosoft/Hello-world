@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>轻量流程控制面板</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main class="panel">
+      <header class="panel__header">
+        <h1>流程控制面板</h1>
+        <p>适用于小型自动化任务的状态监控与流程控制。</p>
+      </header>
+
+      <section class="status-grid">
+        <article class="status-card">
+          <h2>当前流程</h2>
+          <p id="flow-name">数据同步任务</p>
+        </article>
+        <article class="status-card">
+          <h2>运行状态</h2>
+          <p id="flow-state" class="state state--idle">待机</p>
+        </article>
+        <article class="status-card">
+          <h2>执行进度</h2>
+          <div class="progress-wrap" aria-label="执行进度">
+            <div id="progress-bar" class="progress-bar"></div>
+          </div>
+          <p id="progress-text">0%</p>
+        </article>
+      </section>
+
+      <section class="controls">
+        <button id="start-btn" class="btn btn--primary" type="button">启动</button>
+        <button id="pause-btn" class="btn" type="button" disabled>暂停</button>
+        <button id="reset-btn" class="btn" type="button">重置</button>
+      </section>
+
+      <section class="log-section">
+        <div class="log-section__head">
+          <h2>事件日志</h2>
+          <button id="clear-log-btn" class="btn btn--text" type="button">清空</button>
+        </div>
+        <ul id="event-log" class="event-log" aria-live="polite"></ul>
+      </section>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>
