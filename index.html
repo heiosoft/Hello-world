@@ -3,46 +3,35 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>轻量流程控制面板</title>
+    <title>工作流建模画面</title>
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <main class="panel">
-      <header class="panel__header">
-        <h1>流程控制面板</h1>
-        <p>适用于小型自动化任务的状态监控与流程控制。</p>
+    <main class="workflow-app">
+      <header class="app-header">
+        <h1>工作流模型画面</h1>
+        <p>从左侧拖拽控件到画布，快速搭建流程。</p>
       </header>
 
-      <section class="status-grid">
-        <article class="status-card">
-          <h2>当前流程</h2>
-          <p id="flow-name">数据同步任务</p>
-        </article>
-        <article class="status-card">
-          <h2>运行状态</h2>
-          <p id="flow-state" class="state state--idle">待机</p>
-        </article>
-        <article class="status-card">
-          <h2>执行进度</h2>
-          <div class="progress-wrap" aria-label="执行进度">
-            <div id="progress-bar" class="progress-bar"></div>
+      <section class="layout">
+        <aside class="toolbox" aria-label="控件工具箱">
+          <h2>控件库</h2>
+          <div class="toolbox-list">
+            <button class="tool" type="button" draggable="true" data-type="start">开始</button>
+            <button class="tool" type="button" draggable="true" data-type="task">任务</button>
+            <button class="tool" type="button" draggable="true" data-type="decision">判断</button>
+            <button class="tool" type="button" draggable="true" data-type="end">结束</button>
           </div>
-          <p id="progress-text">0%</p>
-        </article>
-      </section>
+          <p class="hint">提示：拖动后可再次拖动画布中的节点调整位置。</p>
+        </aside>
 
-      <section class="controls">
-        <button id="start-btn" class="btn btn--primary" type="button">启动</button>
-        <button id="pause-btn" class="btn" type="button" disabled>暂停</button>
-        <button id="reset-btn" class="btn" type="button">重置</button>
-      </section>
-
-      <section class="log-section">
-        <div class="log-section__head">
-          <h2>事件日志</h2>
-          <button id="clear-log-btn" class="btn btn--text" type="button">清空</button>
+        <div class="canvas-wrap">
+          <div class="canvas-head">
+            <h2>流程画布</h2>
+            <button id="clear-btn" class="clear-btn" type="button">清空画布</button>
+          </div>
+          <div id="canvas" class="canvas" aria-label="工作流建模画布"></div>
         </div>
-        <ul id="event-log" class="event-log" aria-live="polite"></ul>
       </section>
     </main>
 

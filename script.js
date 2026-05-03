@@ -1,91 +1,91 @@
-const stateElement = document.getElementById("flow-state");
-const progressBar = document.getElementById("progress-bar");
-const progressText = document.getElementById("progress-text");
-const eventLog = document.getElementById("event-log");
+const canvas = document.getElementById("canvas");
+const clearBtn = document.getElementById("clear-btn");
+const toolboxItems = document.querySelectorAll(".tool");
 
-const startBtn = document.getElementById("start-btn");
-const pauseBtn = document.getElementById("pause-btn");
-const resetBtn = document.getElementById("reset-btn");
-const clearLogBtn = document.getElementById("clear-log-btn");
+const labels = {
+  start: "开始",
+  task: "任务",
+  decision: "判断",
+  end: "结束",
+};
 
-let timer = null;
-let progress = 0;
-let runState = "idle";
+let idSeed = 1;
 
-function writeLog(message) {
-  const item = document.createElement("li");
-  const time = new Date().toLocaleTimeString("zh-CN", { hour12: false });
-  item.textContent = `[${time}] ${message}`;
-  eventLog.prepend(item);
+function clamp(value, min, max) {
+  return Math.max(min, Math.min(value, max));
 }
 
-function render() {
-  progressBar.style.width = `${progress}%`;
-  progressText.textContent = `${progress}%`;
+function placeNode(type, x, y) {
+  const node = document.createElement("div");
+  node.className = `node node--${type}`;
+  node.textContent = `${labels[type]} ${idSeed++}`;
+  node.dataset.type = type;
+  node.draggable = true;
 
-  stateElement.className = "state";
-  if (runState === "running") {
-    stateElement.classList.add("state--running");
-    stateElement.textContent = "运行中";
-  } else if (runState === "paused") {
-    stateElement.classList.add("state--paused");
-    stateElement.textContent = "已暂停";
-  } else {
-    stateElement.classList.add("state--idle");
-    stateElement.textContent = "待机";
-  }
+  const width = 110;
+  const height = 40;
+  const left = clamp(x - width / 2, 0, canvas.clientWidth - width);
+  const top = clamp(y - height / 2, 0, canvas.clientHeight - height);
+  node.style.left = `${left}px`;
+  node.style.top = `${top}px`;
 
-  startBtn.disabled = runState === "running";
-  pauseBtn.disabled = runState !== "running";
+  node.addEventListener("dragstart", (event) => {
+    event.dataTransfer.setData("text/plain", "move-node");
+    event.dataTransfer.setData("node-id", node.dataset.nodeId);
+  });
+
+  node.dataset.nodeId = `node-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  canvas.appendChild(node);
 }
 
-function startFlow() {
-  if (runState === "running") {
-    return;
-  }
-  runState = "running";
-  writeLog("流程已启动");
-  timer = setInterval(() => {
-    progress = Math.min(progress + 5, 100);
-    if (progress >= 100) {
-      clearInterval(timer);
-      timer = null;
-      runState = "idle";
-      writeLog("流程执行完成");
-    }
-    render();
-  }, 650);
-  render();
-}
-
-function pauseFlow() {
-  if (runState !== "running") {
-    return;
-  }
-  clearInterval(timer);
-  timer = null;
-  runState = "paused";
-  writeLog("流程已暂停");
-  render();
-}
-
-function resetFlow() {
-  clearInterval(timer);
-  timer = null;
-  progress = 0;
-  runState = "idle";
-  writeLog("流程已重置");
-  render();
-}
-
-startBtn.addEventListener("click", startFlow);
-pauseBtn.addEventListener("click", pauseFlow);
-resetBtn.addEventListener("click", resetFlow);
-
-clearLogBtn.addEventListener("click", () => {
-  eventLog.innerHTML = "";
-  writeLog("日志已清空");
+toolboxItems.forEach((item) => {
+  item.addEventListener("dragstart", (event) => {
+    event.dataTransfer.setData("text/plain", "new-node");
+    event.dataTransfer.setData("node-type", item.dataset.type);
+  });
 });
 
-writeLog("面板已就绪");
-render();
+canvas.addEventListener("dragover", (event) => {
+  event.preventDefault();
+  canvas.classList.add("is-over");
+});
+
+canvas.addEventListener("dragleave", () => {
+  canvas.classList.remove("is-over");
+});
+
+canvas.addEventListener("drop", (event) => {
+  event.preventDefault();
+  canvas.classList.remove("is-over");
+
+  const rect = canvas.getBoundingClientRect();
+  const dropX = event.clientX - rect.left;
+  const dropY = event.clientY - rect.top;
+
+  const mode = event.dataTransfer.getData("text/plain");
+  if (mode === "new-node") {
+    const type = event.dataTransfer.getData("node-type");
+    if (labels[type]) {
+      placeNode(type, dropX, dropY);
+    }
+    return;
+  }
+
+  if (mode === "move-node") {
+    const nodeId = event.dataTransfer.getData("node-id");
+    const node = canvas.querySelector(`[data-node-id="${nodeId}"]`);
+    if (!node) {
+      return;
+    }
+
+    const width = node.offsetWidth;
+    const height = node.offsetHeight;
+    node.style.left = `${clamp(dropX - width / 2, 0, canvas.clientWidth - width)}px`;
+    node.style.top = `${clamp(dropY - height / 2, 0, canvas.clientHeight - height)}px`;
+  }
+});
+
+clearBtn.addEventListener("click", () => {
+  canvas.innerHTML = "";
+  idSeed = 1;
+});
